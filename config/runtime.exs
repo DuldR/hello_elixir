@@ -26,7 +26,7 @@ config :libcluster,
     fly6pn: [
       strategy: Cluster.Strategy.Tailscale,
       config: [
-        authkey: System.get_env("TAILSCALE_AUTH", ""),
+        authkey: System.get_env("TAILSCALE_AUTHKEY", ""),
         tailnet: "cuttime.net",
         hostname: "tail_host",
         appname: "tail_app"
