@@ -28,7 +28,7 @@ config :libcluster,
       config: [
         authkey: System.get_env("TAILSCALE_AUTHKEY", ""),
         tailnet: "cuttime.net",
-        hostname: "tail_host",
+        hostname: "fly-app",
         appname: "tail_app"
       ]
     ]
