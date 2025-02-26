@@ -32,6 +32,8 @@ defmodule HelloElixir.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:libcluster_tailscale, "~> 0.1.0"},
+      {:libcluster, "~> 3.3"},
       {:phoenix, "~> 1.7.20"},
       {:phoenix_html, "~> 4.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
