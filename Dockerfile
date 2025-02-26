@@ -68,7 +68,7 @@ RUN mix release
 FROM ${RUNNER_IMAGE}
 
 RUN apt-get update -y && \
-  apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates \
+  apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates iptables ip6tables \
   && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 COPY priv/tailscale/start.sh /tmp/start.sh
@@ -100,5 +100,4 @@ USER nobody
 # above and adding an entrypoint. See https://github.com/krallin/tini for details
 # ENTRYPOINT ["/tini", "--"]
 
-CMD ["/tmp/start.sh"]
-CMD ["/app/bin/server"]
+CMD [ "/tmp/start.sh", "/app/bin/server"]
