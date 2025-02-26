@@ -100,4 +100,4 @@ USER nobody
 # above and adding an entrypoint. See https://github.com/krallin/tini for details
 # ENTRYPOINT ["/tini", "--"]
 
-CMD [ "/tmp/start.sh", "/app/bin/server"]
+CMD [ "/app/bin/server" ]
