@@ -73,6 +73,10 @@ RUN apt-get update -y && \
 
 COPY priv/tailscale/start.sh /tmp/start.sh
 
+COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscaled /app/tailscaled
+COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscale /app/tailscale
+RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale
+
 # Set the locale
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
 
@@ -96,4 +100,5 @@ USER nobody
 # above and adding an entrypoint. See https://github.com/krallin/tini for details
 # ENTRYPOINT ["/tini", "--"]
 
+CMD ["/tmp/start.sh"]
 CMD ["/app/bin/server"]
