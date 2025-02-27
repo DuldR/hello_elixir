@@ -80,45 +80,45 @@ COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscaled /app/
 COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscale /app/tailscale
 RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale
 
-RUN /app/start.sh
+CMD [ "/app/start.sh" ]
 
 # start a new build stage so that the final image will only contain
 # the compiled release and other runtime necessities
-FROM ${RUNNER_IMAGE}
+# FROM ${RUNNER_IMAGE}
 
-RUN apt-get update -y && \
-  apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates nftables \
-  && apt-get clean && rm -f /var/lib/apt/lists/*_*
+# RUN apt-get update -y && \
+#   apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates nftables \
+#   && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
-# Set the locale
-RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
+# # Set the locale
+# RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
 
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
+# ENV LANG en_US.UTF-8
+# ENV LANGUAGE en_US:en
+# ENV LC_ALL en_US.UTF-8
 
-WORKDIR "/app"
-RUN chown nobody /app
+# WORKDIR "/app"
+# RUN chown nobody /app
 
-# set runner ENV
-ENV MIX_ENV="prod"
+# # set runner ENV
+# ENV MIX_ENV="prod"
 
-# Only copy the final release from the build stage
-COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/hello_elixir ./
+# # Only copy the final release from the build stage
+# COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/hello_elixir ./
 
-COPY --from=tail_builder --chown=nobody:root /app/start.sh /app/start.sh
-COPY --from=tail_builder --chown=nobody:root /var/run/tailscale /var/run/tailscale 
-COPY --from=tail_builder --chown=nobody:root /var/cache/tailscale /var/cache/tailscale 
-COPY --from=tail_builder --chown=nobody:root /var/lib/tailscale /var/lib/tailscale 
-COPY --from=tail_builder --chown=nobody:root /app/tailscaled /app/tailscaled
-COPY --from=tail_builder --chown=nobody:root /app/tailscale /app/tailscale
+# COPY --from=tail_builder --chown=nobody:root /app/start.sh /app/start.sh
+# COPY --from=tail_builder --chown=nobody:root /var/run/tailscale /var/run/tailscale 
+# COPY --from=tail_builder --chown=nobody:root /var/cache/tailscale /var/cache/tailscale 
+# COPY --from=tail_builder --chown=nobody:root /var/lib/tailscale /var/lib/tailscale 
+# COPY --from=tail_builder --chown=nobody:root /app/tailscaled /app/tailscaled
+# COPY --from=tail_builder --chown=nobody:root /app/tailscale /app/tailscale
 
-USER nobody
+# USER nobody
 
-# If using an environment that doesn't automatically reap zombie processes, it is
-# advised to add an init process such as tini via `apt-get install`
-# above and adding an entrypoint. See https://github.com/krallin/tini for details
-# ENTRYPOINT ["/tini", "--"]
+# # If using an environment that doesn't automatically reap zombie processes, it is
+# # advised to add an init process such as tini via `apt-get install`
+# # above and adding an entrypoint. See https://github.com/krallin/tini for details
+# # ENTRYPOINT ["/tini", "--"]
 
-RUN /app/start.sh
-CMD [ "/app/bin/server" ]
+# RUN /app/start.sh
+# CMD [ "/app/bin/server" ]
