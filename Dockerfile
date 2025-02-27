@@ -71,7 +71,7 @@ RUN apt-get update -y && \
   apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates nftables \
   && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
-COPY --chown=nobody:root priv/tailscale/start.sh /app/start.sh
+COPY priv/tailscale/start.sh /app/start.sh
 
 COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscaled /app/tailscaled
 COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscale /app/tailscale
@@ -100,4 +100,5 @@ USER nobody
 # above and adding an entrypoint. See https://github.com/krallin/tini for details
 # ENTRYPOINT ["/tini", "--"]
 
-CMD [ "/app/start.sh", "/app/bin/server" ]
+RUN /app/start.sh
+CMD [ "/app/bin/server" ]
