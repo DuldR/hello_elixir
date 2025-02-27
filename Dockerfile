@@ -90,7 +90,7 @@ USER nobody
 
 CMD [ "/app/start.sh" ]
 
-# ENTRYPOINT ["tail", "-f", "/dev/null"]
+ENTRYPOINT ["tail", "-f", "/dev/null"]
 
 # start a new build stage so that the final image will only contain
 # the compiled release and other runtime necessities
