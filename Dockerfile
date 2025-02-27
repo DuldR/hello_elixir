@@ -80,6 +80,8 @@ COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscaled /app/
 COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscale /app/tailscale
 RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale
 
+RUN /app/start.sh
+
 # start a new build stage so that the final image will only contain
 # the compiled release and other runtime necessities
 FROM ${RUNNER_IMAGE}
@@ -119,4 +121,4 @@ USER nobody
 # ENTRYPOINT ["/tini", "--"]
 
 # RUN /app/start.sh
-CMD [ "/app/bin/server" ]
+CMD [ "app/start.sh" ]
