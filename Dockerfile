@@ -68,7 +68,7 @@ RUN mix release
 FROM ${RUNNER_IMAGE}
 
 RUN apt-get update -y && \
-  apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates nftables \
+  apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates iptables-legacy \
   && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 COPY priv/tailscale/start.sh /app/start.sh
