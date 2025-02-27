@@ -62,73 +62,25 @@ COPY config/runtime.exs config/
 
 COPY rel rel
 RUN mix release
-
-FROM alpine:latest as init_builder
+FROM alpine:latest as tail_builder
 WORKDIR /app
 COPY . ./
 # This is where one could build the application code as well.
 
 # https://docs.docker.com/develop/develop-images/multistage-build/#use-multi-stage-builds
-FROM alpine:latest as tail_builder
+FROM alpine:latest
 RUN apk update && apk add ca-certificates iptables ip6tables && rm -rf /var/cache/apk/*
 
 # Copy binary to production image.
-COPY --from=init_builder /app/start.sh /app/start.sh
+COPY --from=tail_builder /app/start.sh /app/start.sh
 
 # Copy Tailscale binaries from the tailscale image on Docker Hub.
 COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscaled /app/tailscaled
 COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscale /app/tailscale
 RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale
 
-# # set runner ENV
-# ENV MIX_ENV="prod"
-
-# # Only copy the final release from the build stage
-# COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/hello_elixir /app/elixir
-
-# USER nobody
-
-CMD [ "/app/start.sh" ]
+# Run on container startup.
+CMD ["/app/start.sh"]
 
 ENTRYPOINT ["tail", "-f", "/dev/null"]
 
-# start a new build stage so that the final image will only contain
-# the compiled release and other runtime necessities
-# FROM ${RUNNER_IMAGE}
-
-# RUN apt-get update -y && \
-#   apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates nftables \
-#   && apt-get clean && rm -f /var/lib/apt/lists/*_*
-
-# # Set the locale
-# RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
-
-# ENV LANG en_US.UTF-8
-# ENV LANGUAGE en_US:en
-# ENV LC_ALL en_US.UTF-8
-
-# WORKDIR "/app"
-# RUN chown nobody /app
-
-# # set runner ENV
-# ENV MIX_ENV="prod"
-
-# # Only copy the final release from the build stage
-# COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/hello_elixir ./
-
-# COPY --from=tail_builder --chown=nobody:root /app/start.sh /app/start.sh
-# COPY --from=tail_builder --chown=nobody:root /var/run/tailscale /var/run/tailscale 
-# COPY --from=tail_builder --chown=nobody:root /var/cache/tailscale /var/cache/tailscale 
-# COPY --from=tail_builder --chown=nobody:root /var/lib/tailscale /var/lib/tailscale 
-# COPY --from=tail_builder --chown=nobody:root /app/tailscaled /app/tailscaled
-# COPY --from=tail_builder --chown=nobody:root /app/tailscale /app/tailscale
-
-# USER nobody
-
-# # If using an environment that doesn't automatically reap zombie processes, it is
-# # advised to add an init process such as tini via `apt-get install`
-# # above and adding an entrypoint. See https://github.com/krallin/tini for details
-# # ENTRYPOINT ["/tini", "--"]
-
-# RUN /app/start.sh
-# CMD [ "/app/bin/server" ]
