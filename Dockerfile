@@ -63,19 +63,34 @@ COPY config/runtime.exs config/
 COPY rel rel
 RUN mix release
 
+FROM alpine:latest as tail_builder
+WORKDIR /app
+COPY . ./
+# This is where one could build the application code as well.
+
+# https://docs.docker.com/develop/develop-images/multistage-build/#use-multi-stage-builds
+FROM alpine:latest
+RUN apk update && apk add ca-certificates iptables ip6tables && rm -rf /var/cache/apk/*
+
+# Copy binary to production image.
+COPY --from=tail_builder /app/start.sh /app/start.sh
+
+# Copy Tailscale binaries from the tailscale image on Docker Hub.
+COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscaled /app/tailscaled
+COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscale /app/tailscale
+RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale
+
+# Run on container startup.
+CMD ["/app/start.sh"]
+
+
 # start a new build stage so that the final image will only contain
 # the compiled release and other runtime necessities
 FROM ${RUNNER_IMAGE}
 
 RUN apt-get update -y && \
-  apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates nftables \
+  apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates \
   && apt-get clean && rm -f /var/lib/apt/lists/*_*
-
-COPY priv/tailscale/start.sh /app/start.sh
-
-COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscaled /app/tailscaled
-COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscale /app/tailscale
-RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale
 
 # Set the locale
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
@@ -100,5 +115,4 @@ USER nobody
 # above and adding an entrypoint. See https://github.com/krallin/tini for details
 # ENTRYPOINT ["/tini", "--"]
 
-RUN /app/start.sh
 CMD [ "/app/bin/server" ]
