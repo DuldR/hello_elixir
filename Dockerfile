@@ -92,6 +92,10 @@ ENV MIX_ENV="prod"
 # above and adding an entrypoint. See https://github.com/krallin/tini for details
 # ENTRYPOINT ["/tini", "--"]
 
+COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/hello_elixir ./
+
+USER nobody
+
 # CMD [ "/app/bin/server" ]
 FROM alpine:latest as tail_builder
 WORKDIR /app
@@ -103,16 +107,13 @@ FROM alpine:latest
 RUN apk update && apk add ca-certificates iptables ip6tables && rm -rf /var/cache/apk/*
 
 # Copy binary to production image.
-COPY --from=tail_builder /app/start.sh /app/start.sh
+COPY --from=tail_builder /app/test.sh /app/start.sh
 
 # Copy Tailscale binaries from the tailscale image on Docker Hub.
 COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscaled /app/tailscaled
 COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscale /app/tailscale
 RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale
 
-COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/hello_elixir ./
-
-USER nobody
 
 # Run on container startup.
 CMD ["/app/start.sh"]
