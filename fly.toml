@@ -12,6 +12,7 @@ kill_signal = 'SIGTERM'
 [env]
   PHX_HOST = 'hello-elixir-nameless-glitter-1835.fly.dev'
   PORT = '8080'
+	RELEASE_COOKIE = "test-cookie"
 
 [http_service]
   internal_port = 8080
