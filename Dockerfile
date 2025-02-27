@@ -62,6 +62,7 @@ COPY config/runtime.exs config/
 
 COPY rel rel
 RUN mix release
+
 FROM alpine:latest as tail_builder
 WORKDIR /app
 COPY . ./
