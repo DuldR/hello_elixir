@@ -80,9 +80,17 @@ COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscaled /app/
 COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscale /app/tailscale
 RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale
 
+# # set runner ENV
+ENV MIX_ENV="prod"
+
+# # Only copy the final release from the build stage
+COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/hello_elixir /app/elixir
+
+USER nobody
+
 CMD [ "/app/start.sh" ]
 
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+# ENTRYPOINT ["tail", "-f", "/dev/null"]
 
 # start a new build stage so that the final image will only contain
 # the compiled release and other runtime necessities
