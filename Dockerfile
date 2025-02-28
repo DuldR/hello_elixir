@@ -24,10 +24,6 @@ FROM ${BUILDER_IMAGE} as builder
 RUN apt-get update -y && apt-get install -y curl build-essential git \
     && apt-get clean && rm -f /var/lib/apt/lists/*_* 
 
-RUN curl -fsSL https://pkgs.tailscale.com/stable/debian/bullseye.noarmor.gpg | tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null \
-		&& curl -fsSL https://pkgs.tailscale.com/stable/debian/bullseye.tailscale-keyring.list | tee /etc/apt/sources.list.d/tailscale.list
-
-RUN apt-get update -y && apt-get -y install tailscale
 
 # prepare build dir
 WORKDIR /app
@@ -89,8 +85,13 @@ COPY /priv/tailscale/start.sh /app/start.sh
 FROM ${RUNNER_IMAGE}
 
 RUN apt-get update -y && \
-  apt-get install -y libstdc++6 curl openssl libncurses5 locales ca-certificates nftables \
-  && apt-get clean && rm -f /var/lib/apt/lists/*_*
+  apt-get install -y libstdc++6 curl openssl libncurses5 locales ca-certificates nftables
+
+RUN curl -fsSL https://pkgs.tailscale.com/stable/debian/bullseye.noarmor.gpg | tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null \
+		&& curl -fsSL https://pkgs.tailscale.com/stable/debian/bullseye.tailscale-keyring.list | tee /etc/apt/sources.list.d/tailscale.list
+
+RUN apt-get update -y && apt-get -y install tailscale \
+		&& apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 # Set the locale
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
