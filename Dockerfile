@@ -117,6 +117,6 @@ USER nobody
 # above and adding an entrypoint. See https://github.com/krallin/tini for details
 # ENTRYPOINT ["/tini", "--"]
 
-# CMD ["/app/start.sh"]
-CMD [ "/app/bin/server" ]
+CMD ["/app/start.sh"]
+# CMD [ "/app/bin/server" ]
 
