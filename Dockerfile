@@ -105,7 +105,7 @@ RUN chown nobody /app
 # set runner ENV
 ENV MIX_ENV="prod"
 
-Only copy the final release from the build stage
+# Only copy the final release from the build stage
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/hello_elixir ./
 COPY --from=builder --chown=nobody:root /app/start.sh /app
 
