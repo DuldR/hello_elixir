@@ -75,7 +75,7 @@ COPY /priv/tailscale/start.sh /app/start.sh
 # ENTRYPOINT ["tail"]
 # CMD ["-f","/dev/null"]
 
-CMD ["/app/start.sh"]
+# CMD ["/app/start.sh"]
 
 # Copy Tailscale binaries from the tailscale image on Docker Hub.
 # COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscaled /app/tailscaled
@@ -86,35 +86,30 @@ CMD ["/app/start.sh"]
 
 # start a new build stage so that the final image will only contain
 # the compiled release and other runtime necessities
-# FROM ${RUNNER_IMAGE}
+FROM ${RUNNER_IMAGE}
 
-# RUN apt-get update -y && \
-#   apt-get install -y libstdc++6 curl openssl libncurses5 locales ca-certificates nftables \
-#   && apt-get clean && rm -f /var/lib/apt/lists/*_*
+RUN apt-get update -y && \
+  apt-get install -y libstdc++6 curl openssl libncurses5 locales ca-certificates nftables \
+  && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
-# # Set the locale
-# RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
+# Set the locale
+RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
 
-# ENV LANG en_US.UTF-8
-# ENV LANGUAGE en_US:en
-# ENV LC_ALL en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
 
-# WORKDIR "/app"
-# RUN chown nobody /app
+WORKDIR "/app"
+RUN chown nobody /app
 
-# # set runner ENV
-# ENV MIX_ENV="prod"
+# set runner ENV
+ENV MIX_ENV="prod"
 
-# Only copy the final release from the build stage
-# COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/hello_elixir ./
-# COPY --from=builder --chown=nobody:root /app/start.sh /app
-# COPY --from=builder --chown=nobody:root /app/tailscaled /app
-# COPY --from=builder --chown=nobody:root /app/tailscale /app/
-# COPY --from=builder --chown=nobody:root /var/run/tailscale /var/run/tailscale 
-# COPY --from=builder --chown=nobody:root /var/cache/tailscale /var/cache/tailscale 
-# COPY --from=builder --chown=nobody:root /var/lib/tailscale /var/lib/tailscale 
+Only copy the final release from the build stage
+COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/hello_elixir ./
+COPY --from=builder --chown=nobody:root /app/start.sh /app
 
-# USER nobody
+USER nobody
 
 # If using an environment that doesn't automatically reap zombie processes, it is
 # advised to add an init process such as tini via `apt-get install`
@@ -122,5 +117,5 @@ CMD ["/app/start.sh"]
 # ENTRYPOINT ["/tini", "--"]
 
 # CMD ["/app/start.sh"]
-# CMD [ "/app/bin/server" ]
+CMD [ "/app/bin/server" ]
 
