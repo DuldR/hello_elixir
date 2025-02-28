@@ -70,8 +70,12 @@ RUN mix release
 
 COPY /priv/tailscale/start.sh /app/start.sh
 
-ENTRYPOINT ["tail"]
-CMD ["-f","/dev/null"]
+# RUN /app/start.sh
+
+# ENTRYPOINT ["tail"]
+# CMD ["-f","/dev/null"]
+
+CMD ["/app/start.sh"]
 
 # Copy Tailscale binaries from the tailscale image on Docker Hub.
 # COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscaled /app/tailscaled
